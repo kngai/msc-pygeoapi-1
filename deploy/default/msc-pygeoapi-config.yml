@@ -10,7 +10,7 @@ server:
     # cors: true
     pretty_print: true
     limit: 500
-    # templates: /path/to/templates
+    templates: /theme/templates
     map:
         url: https://tile.openstreetmap.org/{z}/{x}/{y}.png
         attribution: '<a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors</a>'
