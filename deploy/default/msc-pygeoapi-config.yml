@@ -10,6 +10,7 @@ server:
     # cors: true
     pretty_print: true
     limit: 500
+    static: ${MSC_PYGEOAPI_STATIC}
     templates: ${MSC_PYGEOAPI_TEMPLATES}
     map:
         url: https://tile.openstreetmap.org/{z}/{x}/{y}.png
