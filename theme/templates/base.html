@@ -10,21 +10,9 @@
     <link rel="shortcut icon" href="{{ config['server']['url'] }}/static/img/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="https://unpkg.com/mini.css@3.0.1/dist/mini-default.min.css">
     <link rel="stylesheet" href="{{ config['server']['url'] }}/static/css/default.css">
-
-    <!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous"> -->
-
-    <!-- START - Experimental Bootstrap 4 -->
-    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <link rel="stylesheet" href="site-assets/x-bootstrap-4.css" /> -->
-    <!-- END - Experimental Bootstrap 4 -->
-    
     <!--[if lt IE 9]>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
     <![endif]-->
-
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
-    <script src="https://cdn.rawgit.com/ktquez/vue-head/v2.2.0/vue-head.js"></script>
-
     {% for link in data['links'] %}
       <link rel="{{ link['rel'] }}" type="{{ link['type'] }}" title="{{ link['title'] }}" href="{{ link['href'] }}"/>
       {% if (link['rel']=="self" and link['type']=="text/html") %}
@@ -58,7 +46,7 @@
       </div>
     </div>
     <main>
-    <div id="vm" class="container">
+    <div class="container">
       <div class="row">
         <div class="col-sm-12 col-md-10 col-md-offset-1">
           <br/>
@@ -69,34 +57,23 @@
     </div>
     </main>
     <footer class="sticky">Powered by <a title="pygeoapi" href="https://pygeoapi.io"><img src="{{ config['server']['url'] }}/static/img/pygeoapi.png" title="pygeoapi logo" style="height:24px;vertical-align: middle;"/></a> {{ version }}</footer>
-    <script>
-      const vm = new Vue({
-        el: '#vm',
-        delimiters: ['[[', ']]'],
-        head: {
-          script: function () {
-            return [
-              { t: 'application/ld+json', i: this.jsonld, id: 'page-jsonjd' },
-            ]
-          }
-        },
-        data: function () {
-          return {
-            path: window.location.protocol + "//" + window.location.host + window.location.pathname + "?f=jsonld",
-            jsonld: '{ "@context": "https://schema.org/docs/jsonldcontext.jsonld", "@type": "DataCatalog" }'
-          }
-        },
-        created: async function () {
-          // Requests and embeds JSON-LD representation of current page
-          const gResponse = await fetch(this.path);
-          // console.log(gResponse);
-          this.jsonld = await gResponse.text();
-          // console.log(this.jsonld);
-          this.$emit('updateHead');
-        }
-      })
-    </script>    
     {% block extrafoot %}
     {% endblock %}
+    <script>
+      // Requests and embeds JSON-LD representation of current page
+      var xhr = new XMLHttpRequest();
+      var path = window.location.protocol + "//" + window.location.host + window.location.pathname + "?f=jsonld";
+      xhr.open('GET', path);
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          var head = document.getElementsByTagName('head')[0];
+          var jsonld_datablock = document.createElement('script');
+          jsonld_datablock.type = "application/ld+json";
+          jsonld_datablock.textContent = xhr.responseText;
+          head.appendChild(jsonld_datablock);
+        }
+      };
+      xhr.send();
+    </script>
   </body>
 </html>
