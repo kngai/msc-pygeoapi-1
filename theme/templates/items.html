@@ -3,7 +3,7 @@
 {% block crumbs %}{{ super() }}
 <li><a href="{{ data['collections_path'] }}">Collections</a></li>
 {% for link in data['links'] %}
-  {% if link.rel == 'collection' %} /
+  {% if link.rel == 'collection' %}
     <li><a href="{{ data['dataset_path'] }}">{{ link['title'] }}</a></li>
     {% set col_title = link['title'] %}
   {% endif %}
