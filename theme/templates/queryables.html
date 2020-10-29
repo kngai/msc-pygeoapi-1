@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 {% block title %}{{ super() }} {{ data['title'] }} {% endblock %}
 {% block crumbs %}{{ super() }}
-/ <a href="../../collections">Collections</a>
-/ <a href="./{{ data['id'] }}">{{ data['title'] }}</a>
-/ <a href="./{{ data['id'] }}queryables">Queryables</a>
+<li><a href="../../collections">Collections</a></li>
+<li><a href="./{{ data['id'] }}">{{ data['title'] }}</a></li>
+<li><a href="./{{ data['id'] }}queryables">Queryables</a></li>
 {% endblock %}
 {% block body %}
     <section id="collection" itemscope itemtype="https://schema.org/Dataset">
@@ -12,7 +12,7 @@
         <meta itemprop="name" content="{{ config['metadata']['identification']['title'] | striptags }}" />
         <meta itemprop="description" content="{{ config['metadata']['identification']['description'] | striptags }}" />
       </span>
-      <h1 itemprop="name">{{ data['title'] }}</h1>
+      <h1 itemprop="name" id="wb-cont" property="name">{{ data['title'] }}</h1>
       <meta itemprop="url" content="{{ config['server']['url'] }}" />
       <p itemprop="description">{{ data['description'] }}</p>
       <p itemprop="keywords">
