@@ -46,11 +46,8 @@
               <div class="row">
                 <div class="col-sm-12">
                   {% for link in data['links'] %}
-                  {% if link['rel'] == 'prev' %}
-                  <a role="button" href="./{{ data['prev'] }}">Previous</a>
-                  {% elif link['rel'] == 'next' %}
-                  <a role="button" href="./{{ data['next'] }}">Next</a>
-                  {% endif %}
+                  {% if link['rel'] == 'prev' %}<a role="button" href="./{{ data['prev'] }}">Previous</a>
+                  {% elif link['rel'] == 'next' %}<a role="button" href="./{{ data['next'] }}">Next</a>{% endif %}
                   {% endfor %}
                 </div>
               </div>
@@ -59,8 +56,8 @@
           </div>
         </div>
         <div class="col-md-6 col-sm-12">
-            <table class="striped">
-              <thead>
+          <table class="table table-striped">
+            <thead>
               <tr>
                 <th>Property</th>
                 <th>Value</th>
@@ -74,21 +71,18 @@
               {% for k, v in data['properties'].items() %}
               <tr>
                 <td>{{ k }}</td>
-                {% if k == 'links' %}
-                <td>
-                    <ul>
-                        {% for l in v %}
-                        <li><a href="{{ l['href'] }}">{{ l['title'] }}</a></li>
-                        {% endfor %}
-                    </ul>
+                {% if k == 'links' %}<td>
+                  <ul>
+                    {% for l in v %}
+                    <li><a href="{{ l['href'] }}">{{ l['title'] }}</a></li>
+                    {% endfor %}
+                  </ul>
                 </td>
-                {% else %}
-                  <td>{{ render_item_value(v, 80) }}</td>
-                {% endif %}
+                {% else %}<td>{{ render_item_value(v, 80) }}</td>{% endif %}
               </tr>
               {% endfor %}
             </tbody>
-            </table>
+          </table>
         </div>
       </div>
     </section>
