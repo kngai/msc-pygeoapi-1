@@ -17,14 +17,14 @@
       <h3>Coverage domain set</h3>
       <h4>Axis labels</h4>
       <ul>
-	{% for al in data['generalGrid']['axisLabels'] %}
-	<li>{{ al }}</li>
-	{% endfor %}
+      	{% for al in data['generalGrid']['axisLabels'] %}
+      	<li>{{ al }}</li>
+      	{% endfor %}
       </ul>
       <h4>Extent</h4>
       <ul>
         <li>minx: {{ data['generalGrid']['axis'][0]['lowerBound'] }}</li>
-	<li>miny: {{ data['generalGrid']['axis'][1]['lowerBound'] }}</li>
+	      <li>miny: {{ data['generalGrid']['axis'][1]['lowerBound'] }}</li>
         <li>maxx: {{ data['generalGrid']['axis'][0]['upperBound'] }}</li>
         <li>maxy: {{ data['generalGrid']['axis'][1]['upperBound'] }}</li>
         <li>Coordinate reference system: {{ data['generalGrid']['srsName'] }}</li>

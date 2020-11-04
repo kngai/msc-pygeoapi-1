@@ -17,9 +17,9 @@
       <h3>Coverage range type</h3>
       <h4>Fields</h4>
       <ul>
-	{% for field in data['field'] %}
-	<li>{{ field['id'] }}: {{ field['name'] }} ({{ field['definition'] }})</li>
-	{% endfor %}
+      {% for field in data['field'] %}
+        <li>{{ field['id'] }}: {{ field['name'] }} ({{ field['definition'] }})</li>
+	    {% endfor %}
       </ul>
     </section>
 {% endblock %}

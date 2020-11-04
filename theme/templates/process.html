@@ -11,7 +11,7 @@
       <meta itemprop="url" content="{{ config['server']['url'] }}/processes/{{ data['id'] }}" />
       <div class="row">
         <div class="col-sm-12 col-md-6">
-            <table class="striped">
+            <table class="table table-striped">
               <caption>Inputs</caption>
               <thead>
               <tr>
@@ -28,8 +28,7 @@
                   <td itemprop="description" data-label="description">
                     {{ input_['description'] | striptags | truncate }}
                   </td>
-                </tr>
-                {% endfor %}
+                </tr>{% endfor %}
               </tbody>
             </table>
         </div>
@@ -37,10 +36,7 @@
       <h2>Links</h2>
       <ul>
       {% for link in data['links'] %}
-          <li>
-            <a itemprop="documentation" title="{{ link['rel'] }}" href="{{ link['href'] }}">
-            {{ link['title'] }} ({{ link['type'] }})
-            </a></li>
+        <li><a itemprop="documentation" title="{{ link['rel'] }}" href="{{ link['href'] }}">{{ link['title'] }} ({{ link['type'] }})</a></li>
       {% endfor %}
       </ul>
     </section>
