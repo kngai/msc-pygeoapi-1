@@ -97,12 +97,10 @@
 
     // Map
     var map = L.map('items-map').setView([45, -75], 5);
-    map.addLayer(new L.TileLayer(
-      '{{ config['server']['map']['url'] }}', {
-          maxZoom: 18,
-          attribution: '{{ config['server']['map']['attribution'] }}'
-      }
-    ));
+    map.addLayer(new L.TileLayer('{{ config['server']['map']['url'] }}', {
+      maxZoom: 18,
+      attribution: '{{ config['server']['map']['attribution'] }}'
+    }));
     var geojson_data = {{ data['features'] |to_json }};
     var items = new L.GeoJSON(geojson_data, {
       onEachFeature: function (feature, layer) {
