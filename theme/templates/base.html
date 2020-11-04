@@ -65,9 +65,6 @@
             <a href="https://www.canada.ca/en.html" property="url">
               <img src="https://www.canada.ca/etc/designs/canada/cdts/gcweb/v4_0_32/assets/sig-blk-en.svg" alt="Government of Canada" property="logo" /><span class="wb-inv"> / <span lang="fr">Gouvernement du Canada</span></span>
             </a>
-            <a href="{{ config['server']['url'] }}" class="logo" role="button">
-              <img src="{{ config['server']['url'] }}/static/img/logo.png" title="{{ config['metadata']['identification']['title'] }}" style="height:40px;vertical-align: middle;" />
-            </a>
             <meta property="name" content="Government of Canada" />
             <meta property="areaServed" typeof="Country" content="Canada" />
             <link property="logo" href="https://www.canada.ca/etc/designs/canada/cdts/gcweb/v4_0_32/assets/wmms-blk.svg" />
@@ -90,7 +87,7 @@
       {% block body %}
       {% endblock %}
       <div class="pagedetails">
-        <div class="row">
+        <!-- <div class="row">
           <div class="col-sm-6 col-md-5 col-lg-4">
             <details class="brdr-0">
               <summary class="btn btn-default text-center">Report a problem on this page</summary>
@@ -137,10 +134,10 @@
             </details>
           </div>
           <div class="wb-share col-sm-4 col-md-3 col-sm-offset-2 col-md-offset-4 col-lg-offset-5" data-wb-share='{"lnkClass": "btn btn-default btn-block"}'></div>
-        </div>
+        </div> -->
         <dl id="wb-dtmd">
           <dt>Version:&#32;</dt>
-          <dd><a title="pygeoapi" href="https://pygeoapi.io"><img src="{{ config['server']['url'] }}/static/img/pygeoapi.png" title="pygeoapi logo" style="height:24px;vertical-align: middle;"/></a> {{ version }}</dd>
+          <dd><code>{{ version }}</code> Powered by <a title="pygeoapi" href="https://pygeoapi.io"><img src="{{ config['server']['url'] }}/static/img/pygeoapi.png" style="height:24px;vertical-align: middle;"/></a></dd>
         </dl>
       </div>
     </main>
@@ -202,8 +199,8 @@
       };
       xhr.send();
     </script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
     <script src="https://www.canada.ca/etc/designs/canada/cdts/gcweb/v4_0_32/js/wet-boew.min.js"></script>
-    <script src="https://www.canada.ca/etc/designs/canada/cdts/gcweb/v4_0_32/js/theme.min.js"></script>
+    <script src="https://www.canada.ca/etc/designs/canada/cdts/gcweb/v4_0_32/js/theme.min.js"></script> -->
   </body>
 </html>

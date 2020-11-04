@@ -3,7 +3,7 @@
 {% block crumbs %}{{ super() }}
 <li><a href="../../collections">Collections</a></li>
 <li><a href="./{{ data['id'] }}">{{ data['title'] }}</a></li>
-<li><a href="./{{ data['id'] }}queryables">Queryables</a></li>
+<li><a class="active" href="./{{ data['id'] }}queryables">Queryables</a></li>
 {% endblock %}
 {% block body %}
     <section id="collection" itemscope itemtype="https://schema.org/Dataset">

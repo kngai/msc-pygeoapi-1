@@ -2,7 +2,7 @@
 {% block title %}{{ super() }} {{ data['title'] }} {% endblock %}
 {% block crumbs %}{{ super() }}
 <li><a href="../processes">Processes</a></li>
-<li><a href="./{{ data['id'] }}">{{ data['title'] }}</a></li>
+<li><a class="active" href="./{{ data['id'] }}">{{ data['title'] }}</a></li>
 {% endblock %}
 {% block body %}
     <section id="processes" itemscope itemtype="https://schema.org/WebAPI">

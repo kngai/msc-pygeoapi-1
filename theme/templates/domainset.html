@@ -2,7 +2,7 @@
 {% block title %}{{ super() }} {{ data['title'] }} {% endblock %}
 {% block crumbs %}{{ super() }}
 <li><a href="../../">Collections</a></li>
-<li><a href="../../../collections/{{ data['id'] }}">{{ data['title'] }}</a></li>
+<li><a class="active" href="../../../collections/{{ data['id'] }}">{{ data['title'] }}</a></li>
 {% endblock %}
 {% block body %}
     <section id="collection" itemscope itemtype="https://schema.org/Dataset">
