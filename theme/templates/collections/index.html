@@ -7,7 +7,7 @@
     <section id="collections">
       <h1>Collections in this service</h1>
       <button @click="tableHidden = !tableHidden">TEST hide table: [% tableHidden %]</button>
-            <table class="striped">
+            <table class="striped" v-show="!tableHidden">
               <thead>
               <tr>
                 <th>Name</th>
