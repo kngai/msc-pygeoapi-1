@@ -11,7 +11,7 @@
       <p>{{ data['description'] }}</p>
       <p>
         {% for kw in data['keywords'] %}
-          <mark class="tag">{{ kw }}</mark>
+          <span class="label label-info">{{ kw }}</span>
         {% endfor %}
       </p>
       <h3>Queryables</h3>
