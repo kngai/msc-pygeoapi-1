@@ -37,7 +37,7 @@
                   <progress class="inline" value="{{job.progress|int*10}}" max="1000"></progress>
                 </td>
                 <td>
-                  <mark class="{{job.status}}">{{ job.status }}</mark>
+                  <span class="label label-job job-{{job.status}}">{{ job.status }}</span>
                 </td>
                 <td>
                   {{ job.message }}
