@@ -6,11 +6,19 @@
 {% block body %}
     <section id="collections">
       <h1>Collections in this service</h1>
-      <table class="table table-striped">
+
+      <div class="form-inline" aria-controls="collections-table">
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Search"
+          v-model="searchText">
+      </div>
+      <table id="collections-table" class="table table-striped">
         <thead>
         <tr>
           <th v-for="(th, index) in tableFields"
-            :class="[th.colClass]"
+            :class="[th.colClass, 'sortable']"
             @click="sortDir(th.key)">[% th.text %]
             <span
               v-show="currentSort === th.key"
@@ -20,15 +28,15 @@
         </tr>
         </thead>
         <tbody>
-          <tr v-for="(collection, index) in filteredCollections">
+          <tr v-for="(collection, index) in collections">
             <td data-label="name">
-              <a :title="truncateAndStripTags(collection.title)"
+              <a :title="truncateStripTags(collection.title)"
                 :href="'{{ config['server']['url'] }}/collections/' + collection.id">
-                <span>[% truncateAndStripTags(collection.title) %]</span></a>
+                <span>[% truncateStripTags(collection.title) %]</span></a>
             </td>
             <td data-label="type">[% collection.itemType %]</td>
             <td data-label="description">
-              [% collection.description %]
+              [% truncateStripTags(collection.description) %]
             </td>
           </tr>
         </tbody>
@@ -36,12 +44,16 @@
     </section>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
     <script type="module">
-      import { createApp, ref, computed, onMounted } from 'https://cdnjs.cloudflare.com/ajax/libs/vue/3.0.5/vue.esm-browser.prod.js'
+      import useCollections from '{{ config['server']['url'] }}/static/js/composables/useCollections.js'
+      import useCollectionsFilter from '{{ config['server']['url'] }}/static/js/composables/useCollectionsFilter.js'
+      import { createApp, ref, computed } from 'https://cdnjs.cloudflare.com/ajax/libs/vue/3.0.5/vue.esm-browser.prod.js'
 
       const app = createApp({
         delimiters: ['[%', '%]'],
         setup() {
-          // table configs
+          const { collections, getCollections } = useCollections()
+
+          // table columns
           const tableFields = ref([
             {
               key: 'title',
@@ -57,27 +69,14 @@
               colClass: 'col-sm-7'
             }
           ])
-
-          // table sorting
-          const currentSortDir = ref('asc')
-          const currentSort = ref('title') // default to first column
-          const sortDir = function (s) {
-            // if s == current sort, reverse
-            if (s === currentSort.value) {
-              currentSortDir.value = currentSortDir.value === 'asc' ? 'desc' : 'asc'
-            }
-            currentSort.value = s
-          }
-          const sortIconClass = computed(() => {
-            if (currentSortDir.value === 'asc') {
-              return 'glyphicon-sort-by-attributes'
-            } else {
-              return 'glyphicon-sort-by-attributes-alt'
-            }
+          const keyColumns = computed(() => {
+            return tableFields.value.map(field => field.key)
           })
+          const { filteredCollections, searchText, searchTextLowered,
+            currentSort, sortDir, sortIconClass } = useCollectionsFilter(collections, keyColumns)
 
           // htmlString modications in table
-          const stripTags = function (htmlString) {
+          const stripTags = function(htmlString) {
             return htmlString.replace(/<[^>]+>/g, '')
           }
           const truncate = function (str, num) {
@@ -86,41 +85,16 @@
             }
             return str.slice(0, num) + '...'
           }
-          const truncateAndStripTags = function (str) {
-            return truncate(stripTags(str), 50)
+          const truncateStripTags = function(str) {
+            return truncate(stripTags(str), 350)
           }
-
-          // get collections XHR handling
-          let collections = ref([])
-          let filteredCollections = computed(() => {
-            const compare = function (a, b) { // sort function
-              let modifier = 1
-              if (currentSortDir.value === 'desc') {
-                modifier = -1
-              }
-              if (a[currentSort.value] < b[currentSort.value]) {
-                return -1 * modifier
-              }
-              if (a[currentSort.value] > b[currentSort.value]) {
-                return 1 * modifier
-              }
-              return 0
-            }
-
-            return collections.value.sort(compare)
-          })
-          const getCollections = async () => {
-            try {
-              const resp = await axios.get('/collections?f=json')
-              collections.value = resp.data.collections
-            } catch (err) {
-              console.error(err)
-            }
-          }
-          onMounted(getCollections())
 
           return {
-            tableFields, collections, truncateAndStripTags, filteredCollections, sortIconClass, sortDir, currentSort, currentSortDir
+            collections: filteredCollections, // we don't care about unfiltered collections
+            getCollections,
+            tableFields, truncateStripTags,
+            searchText, searchTextLowered,
+            sortIconClass, sortDir, currentSort, 
           }
         }
       }).mount('#collections')

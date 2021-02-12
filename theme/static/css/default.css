@@ -4,6 +4,10 @@
   }
 }
 
+.sortable {
+  cursor: pointer;
+}
+
 .text-break {
   word-break: break-all;
 }
