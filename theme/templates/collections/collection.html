@@ -16,11 +16,11 @@
         <div class="col-sm-12">
           <h1>{{ data['title'] }}</h1>
           <p>{{ data['description'] }}</p>
-          <p>
+          <ul class="list-inline">
             {% for kw in data['keywords'] %}
-              <span class="label label-info">{{ kw }}</span>
+              <li><span class="label label-info">{{ kw }}</span></li>
             {% endfor %}
-          </p>
+          </ul>
         </div>
       </div>
       <div class="row">

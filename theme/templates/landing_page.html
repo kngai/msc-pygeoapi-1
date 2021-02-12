@@ -11,11 +11,11 @@
   <section id="identification">
     <p>{{ config['metadata']['identification']['description'] }}</p>
 
-    <p>
+    <ul class="list-inline">
         {% for kw in config['metadata']['identification']['keywords'] %}
-          <span class="label label-info">{{ kw }}</span>
+          <li><span class="label label-info">{{ kw }}</span></li>
         {% endfor %}
-    </p>
+    </ul>
 
     
     {% if config['metadata']['identification']['terms_of_service'] %}
