@@ -45,8 +45,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
     <script type="module">
       import useCollections from '{{ config['server']['url'] }}/static/js/composables/useCollections.js'
-      import useCollectionsFilter from '{{ config['server']['url'] }}/static/js/composables/useCollectionsFilter.js'
-      import { createApp, ref, computed } from 'https://cdnjs.cloudflare.com/ajax/libs/vue/3.0.5/vue.esm-browser.prod.js'
+      import useTableFilter from '{{ config['server']['url'] }}/static/js/composables/useTableFilter.js'
+      import { createApp, ref, computed } from 'https://cdnjs.cloudflare.com/ajax/libs/vue/3.0.5/vue.esm-browser.js'
 
       const app = createApp({
         delimiters: ['[%', '%]'],
@@ -72,32 +72,19 @@
           const keyColumns = computed(() => {
             return tableFields.value.map(field => field.key)
           })
-          const { filteredCollections, searchText, searchTextLowered,
-            currentSort, sortDir, sortIconClass } = useCollectionsFilter(collections, keyColumns)
 
-          // htmlString modications in table
-          const stripTags = function(htmlString) {
-            return htmlString.replace(/<[^>]+>/g, '')
-          }
-          const truncate = function (str, num) {
-            if (str.length <= num) {
-              return str
-            }
-            return str.slice(0, num) + '...'
-          }
-          const truncateStripTags = function(str) {
-            return truncate(stripTags(str), 350)
-          }
-
+          // filtering of table results
+          const { filteredRows, searchText, searchTextLowered,
+            currentSort, sortDir, sortIconClass, truncateStripTags } = useTableFilter(collections, keyColumns, 'title')
+          
           return {
-            collections: filteredCollections, // we don't care about unfiltered collections
+            collections: filteredRows, // don't care about unfiltered collections
             getCollections,
             tableFields, truncateStripTags,
             searchText, searchTextLowered,
             sortIconClass, sortDir, currentSort, 
           }
         }
-      }).mount('#collections')
-      
+      }).mount('#collections')    
     </script>
 {% endblock %}

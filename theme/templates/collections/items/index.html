@@ -16,7 +16,6 @@
 {% endblock %}
 
 {% block body %}
-  <section id="items"></section>
   <section id="collection">
     <h1>{% for l in data['links'] if l.rel == 'collection' %} {{ l['title'] }} {% endfor %}</h1>
     <p>Items in this collection.</p>
@@ -30,12 +29,7 @@
             <div id="items-map"></div>
           </div>
           <div class="col-sm-12">
-            <div class="row">
-                <div class="col-sm-12">
-                  Warning: Higher limits not recommended!
-                </div>
-            </div>
-            <div class="row">
+            <!-- <div class="row">
                 <div class="col-sm-12">
                   Limit:
                   <select id="limits">
@@ -54,8 +48,8 @@
                     });
                   </script>
                 </div>
-            </div>
-            <div class="row">
+            </div> -->
+            <!-- <div class="row">
               <div class="col-sm-12">
                 {% for link in data['links'] %}
                 {% if link['rel'] == 'prev' and data['startindex'] > 0 %}
@@ -65,35 +59,85 @@
                 {% endif %}
                 {% endfor %}
               </div>
-            </div>
+            </div> -->
           </div>
         </div>
       </div>
       <div class="col-sm-12 col-md-6">
-          <table class="table table-striped">
-            <thead>
+        <div class="form-inline" aria-controls="items-table">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Search"
+            v-model="searchText">
+        </div>
+        <table id="items-table" class="table table-striped">
+          <thead>
             <tr>
-                <th>id</th>
-                {% for k, v in data['features'][0]['properties'].items() %}
-                {% if loop.index < 5 %}
-                <td>{{ k }}</td>
-                {% endif %}
-                {% endfor %}
+              <th v-for="(th, index) in tableFields"
+                :class="[th.colClass, 'sortable']"
+                @click="sortDir(th.key)">[% th.text %]
+                <span
+                  v-show="currentSort === th.key"
+                  :class="sortIconClass"
+                  class="glyphicon"></span>
+              </th>
             </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(item, index) in items">
+              <td v-for="(th, index) in tableFields">
+                [% item.properties[th.key] %]
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <nav class="form-inline small" aria-live="polite" aria-controls="items-table">
+          <button
+            @click="prevPage"
+            class="btn btn-sm btn-default"
+            :disabled="currentPage === 1">Previous</button>
+          <button
+            @click="nextPage"
+            class="btn btn-sm btn-default"
+            :disabled="(currentPage * pageSize) >= filteredNumEntries">Next</button>
+          <div class="form-group">
+            <label>Page size</label>
+            <select
+              class="input-sm form-control"
+              v-model="pageSize"
+              @change="currentPage = 1">
+                <option value="100">100</option>
+                <option value="500">500</option>
+                <option value="1000">1000</option>
+                <option :value="totalSize">All</option>
+            </select>
+          </div>
+          <span>[% showingFilterText %]</span>
+        </nav>
+
+        <!-- Old table for reference -->
+        <!-- <table class="table table-striped">
+          <thead>
+          <tr>
+              <th>id</th>
+              {% for k, v in data['features'][0]['properties'].items() %}
+              {% if loop.index < 5 %}
+              <td>{{ k }}</td>
+              {% endif %}
+              {% endfor %}
+          </tr>
           </thead>
           <tbody>
             {% for ft in data['features'] %}
               <tr>
                 <td data-label="id"><a href="{{ data['items_path']}}/{{ ft.id }}">{{ ft.id }}</a></td>
-                  {% for k, v in ft['properties'].items() %}
-                  {% if loop.index < 5 %}
-                  <td data-label="{{ k }}">{{ v | urlize(20) }}</td>
-                  {% endif %}
-                  {% endfor %}
+                  
               </tr>
             {% endfor %}
           </tbody>
-          </table>
+        </table> -->
       </div>
     </div>
     {% else %}
@@ -107,24 +151,68 @@
 {% block extrafoot %}
 {% if data['features'] %}
     <script>
-    var map = L.map('items-map').setView([{{ 45 }}, {{ -75 }}], 5);
-    map.addLayer(new L.TileLayer(
-        '{{ config['server']['map']['url'] }}', {
-            maxZoom: 18,
-            attribution: '{{ config['server']['map']['attribution'] }}'
-        }
-    ));
-    var geojson_data = {{ data['features'] |to_json }};
-    var items = new L.GeoJSON(geojson_data, {
-        onEachFeature: function (feature, layer) {
-            var url = '{{ data['items_path'] }}/' + feature.id + '?f=html';
-            var html = '<span><a href="' + url + '">' + feature.id + '</a></span>';
-            layer.bindPopup(html);
-        }
-    });
+      var map = L.map('items-map').setView([{{ 45 }}, {{ -75 }}], 5);
+      map.addLayer(new L.TileLayer(
+          '{{ config['server']['map']['url'] }}', {
+              maxZoom: 18,
+              attribution: '{{ config['server']['map']['attribution'] }}'
+          }
+      ));
+      var geojson_data = {{ data['features'] |to_json }};
+      var items = new L.GeoJSON(geojson_data, {
+          onEachFeature: function (feature, layer) {
+              var url = '{{ data['items_path'] }}/' + feature.id + '?f=html';
+              var html = '<span><a href="' + url + '">' + feature.id + '</a></span>';
+              layer.bindPopup(html);
+          }
+      });
 
-    map.addLayer(items);
-    map.fitBounds(items.getBounds());
+      map.addLayer(items);
+      map.fitBounds(items.getBounds());
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+    <script type="module">
+      import useItems from '{{ config['server']['url'] }}/static/js/composables/useItems.js'
+      import useTableFilter from '{{ config['server']['url'] }}/static/js/composables/useTableFilter.js'
+      import { createApp, ref, computed } from 'https://cdnjs.cloudflare.com/ajax/libs/vue/3.0.5/vue.esm-browser.js'
+
+      const app = createApp({
+        delimiters: ['[%', '%]'],
+        setup() {
+          const { items, itemProps, getItems } = useItems()
+          
+          // table columns
+          const tableFields = computed(() => {
+            const fields = []
+            if (typeof itemProps === 'undefined') {
+              return []
+            }
+            itemProps.value.slice(0, 4).forEach((prop) => {
+              fields.push({
+                key: prop,
+                text: prop,
+                colClass: 'col-sm-3'
+              })
+            })
+            return fields
+          })
+          const keyColumns = computed(() => {
+            console.log(tableFields.value.map(field => field.key))
+            return tableFields.value.map(field => field.key)
+          })
+          const { filteredRows, searchText, searchTextLowered,
+            currentSort, sortDir, sortIconClass, truncateStripTags,
+            pageSize, currentPage, nextPage, prevPage, totalSize, filteredNumEntries, showingFilterText } = useTableFilter(items, keyColumns, 'id')
+
+          return {
+            tableFields, keyColumns,
+            items: filteredRows, // don't care for unfiltered
+            searchText, searchTextLowered,
+            sortIconClass, sortDir, currentSort, totalSize, filteredNumEntries, currentPage, pageSize, nextPage, prevPage, showingFilterText
+          }
+        }
+      })
+      app.mount('#items')
     </script>
 {% endif %}
 {% endblock %}
