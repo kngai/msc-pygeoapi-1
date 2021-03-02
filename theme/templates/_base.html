@@ -146,7 +146,7 @@
         <nav class="container wb-navcurr">
           <h2 class="wb-inv">About government</h2>
           <ul class="list-unstyled colcount-sm-2 colcount-md-3">
-            <li><a href="mailto:{{ config['metadata']['contact']['email'] }}">Contact MSC pygeoapi</a></li>
+            <!-- <li><a href="mailto:{{ config['metadata']['contact']['email'] }}">Contact MSC</a></li> -->
             <li><a href="https://www.canada.ca/en/contact.html">Contact us</a></li>
             <li><a href="https://www.canada.ca/en/government/dept.html">Departments and agencies</a></li>
             <li><a href="https://www.canada.ca/en/government/publicservice.html">Public service and military</a></li>
@@ -188,6 +188,9 @@
       // Requests and embeds JSON-LD representation of current page
       var xhr = new XMLHttpRequest();
       var path = window.location.protocol + "//" + window.location.host + window.location.pathname + "?f=jsonld";
+      if (window.location.pathname.match(/\/items(#)*/gi)) { // reduce load on /items page
+        path += '&limit=10';
+      }
       xhr.open('GET', path);
       xhr.onload = function() {
         if (xhr.status === 200) {
