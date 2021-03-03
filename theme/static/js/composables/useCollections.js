@@ -2,6 +2,13 @@ import { ref, computed, onMounted } from 'https://cdnjs.cloudflare.com/ajax/libs
 
 export default function useCollections() {
   const collectionsJson = ref({})
+  const collectionsTotal = computed(() => {
+    if (Object.prototype.hasOwnProperty.call(collectionsJson.value, 'numberMatched')) {
+      return collectionsJson.value.numberMatched
+    } else {
+      return 0
+    }
+  })
   const collections = computed(() => {
     if (Object.prototype.hasOwnProperty.call(collectionsJson.value, 'collections')) {
       return collectionsJson.value.collections
@@ -22,6 +29,7 @@ export default function useCollections() {
 
   return {
     collections,
+    collectionsTotal,
     collectionsJson,
     getCollections
   }

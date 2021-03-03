@@ -1,14 +1,14 @@
-import { ref, computed } from 'https://cdnjs.cloudflare.com/ajax/libs/vue/3.0.5/vue.esm-browser.js'
+import { ref, computed, watch } from 'https://cdnjs.cloudflare.com/ajax/libs/vue/3.0.5/vue.esm-browser.js'
 
 export default function useTableFilter(rows, keyColumns, defaultSortCol) {
   // sort and filtering
   const searchText = ref('')
-  const searchTextLowered = computed(() => { 
+  const searchTextLowered = computed(() => {
     return searchText.value.toLowerCase()
   })
   const currentSortDir = ref('asc')
   const currentSort = ref(defaultSortCol)
-  const pageSize = ref('all')
+  const pageSize = ref(500)
   const currentPage = ref(1)
   const totalSize = computed(() => {
     return rows.value.length
@@ -85,12 +85,12 @@ export default function useTableFilter(rows, keyColumns, defaultSortCol) {
     }
   }
   const nextPage = function () {
-    if ((currentPage * pageSize) < filteredNumEntries) {
+    if ((currentPage.value * pageSize.value) < filteredNumEntries.value) {
       currentPage.value++
     }
   }
   const prevPage = function () {
-    if (currentPage > 1) {
+    if (currentPage.value > 1) {
       currentPage.value--
     }
   }
@@ -118,18 +118,17 @@ export default function useTableFilter(rows, keyColumns, defaultSortCol) {
   //   return Math.ceil(filteredNumEntries / pageSize)
   // })
   const showingFilterText = computed(() => {
+    let showText = `Showing ${startEntryOfPage.value} to ${lastEntryOfPage.value} of ${filteredNumEntries.value}`
     if (filteredNumEntries.value < totalSize.value) {
       if (totalSize.value === 1) {
-        // $t: text in {} are numbers; singular case
-        return `Showing ${startEntryOfPage.value} to ${lastEntryOfPage.value} of ${filteredNumEntries.value} (filtered from {totalSize} total entry)`
+        // singular case
+        showText += `(filtered from {totalSize} total entry)`
       } else { // > 1
-        // $t: text in {} are numbers; plural case
-        return `Showing ${startEntryOfPage.value} to ${lastEntryOfPage.value} of ${filteredNumEntries.value} (filtered from ${totalSize.value} total entries)`
+        // plural case
+        showText += `(filtered from ${totalSize.value} total entries)`
       }
-    } else {
-      // $t: text in {} are numbers
-      return `Showing ${startEntryOfPage.value} to ${lastEntryOfPage.value} of ${filteredNumEntries.value}`
     }
+    return showText
   })
 
   const filteredRows = computed(() => {
@@ -138,7 +137,8 @@ export default function useTableFilter(rows, keyColumns, defaultSortCol) {
       .sort(sortRows)
   })
   const paginatedRows = computed(() => {
-    return filteredRows.value.filter(paginateFilter)
+    return filteredRows.value
+      .filter(paginateFilter)
   })
 
   // html/string modications for table presentation
@@ -158,7 +158,7 @@ export default function useTableFilter(rows, keyColumns, defaultSortCol) {
   return {
     filteredRows, searchText, searchTextLowered,
     currentSortDir, currentSort, sortDir, sortIconClass, 
-    pageSize, currentPage, paginatedRows, prevPage, nextPage, totalSize, showingFilterText,
+    pageSize, currentPage, paginatedRows, prevPage, nextPage, showingFilterText,
     truncateStripTags, stripTags, truncate
   }
 }

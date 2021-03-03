@@ -1,24 +1,69 @@
-import { ref, computed, onMounted } from 'https://cdnjs.cloudflare.com/ajax/libs/vue/3.0.5/vue.esm-browser.js'
+import { ref, computed, onMounted, watch } from 'https://cdnjs.cloudflare.com/ajax/libs/vue/3.0.5/vue.esm-browser.js'
 
 export default function useItems() {
+  const requestUrl = ref('')
+  const limit = ref(10) // default
+  const currentPage = ref(1)
   const itemsJson = ref({})
+  const itemsTotal = computed(() => {
+    if (Object.prototype.hasOwnProperty.call(itemsJson.value, 'numberMatched')) {
+      return itemsJson.value.numberMatched
+    } else {
+      return 500
+    }
+  })
   const items = computed(() => {
     if (Object.prototype.hasOwnProperty.call(itemsJson.value, 'features')) {
-      return itemsJson.value.features
+      // map items to only show its properties
+      return itemsJson.value.features.map((item) => {
+        return {
+          id: item.id,
+          ...item.properties
+        }
+      })
     } else {
       return []
     }
   })
   const itemProps = computed(() => {
     if (items.value.length > 0) {
-      return Object.keys(items.value[0].properties)
+      return Object.keys(items.value[0])
     } else {
       return []
     }
   })
+  const showingLimitText = computed(() => {
+    let showText = `Showing ${parseInt(startindex.value) + 1} to ${parseInt(startindex.value) + parseInt(limit.value)} of ${itemsTotal.value} items`
+    return showText
+  })
+  const startindex = computed(() => {
+    if (currentPage.value === 1) {
+      return 0
+    } else {
+      console.log('new startindex', parseInt((currentPage.value - 1) * limit.value))
+      return parseInt((currentPage.value - 1) * limit.value)
+    }
+  })
+  const nextPage = function() {
+    if ((currentPage.value * limit.value) < itemsTotal.value) {
+      currentPage.value++
+      getItems()
+    }
+  }
+  const prevPage = function() {
+    if (currentPage.value > 1) {
+      currentPage.value--
+      getItems()
+    }
+  }
   const getItems = async () => {
     try {
-      const resp = await axios.get('?f=json') // relative to /items
+      const newRequestUrl = `?f=json&limit=${limit.value}&startindex=${startindex.value}`  // relative to /items
+      if (requestUrl.value === newRequestUrl) {
+        return false // prevent duplicate calls
+      }
+      requestUrl.value = newRequestUrl
+      const resp = await axios.get(requestUrl.value)
       itemsJson.value = resp.data
     } catch (err) {
       console.error(err)
@@ -26,11 +71,13 @@ export default function useItems() {
   }
   
   onMounted(getItems)
+  watch(limit, () => {
+    currentPage.value = 1 // reset for limit
+  })
 
   return {
-    itemsJson,
-    items,
-    itemProps,
-    getItems
+    itemsJson, itemsTotal, items, itemProps, limit,
+    getItems, showingLimitText,
+    nextPage, prevPage, currentPage
   }
 }
