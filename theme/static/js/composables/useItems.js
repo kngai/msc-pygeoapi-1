@@ -4,6 +4,7 @@ export default function useItems() {
   const requestUrl = ref('')
   const limit = ref(10) // default
   const currentPage = ref(1)
+  const itemsLoading = ref(false)
   const itemsJson = ref({})
   const itemsTotal = computed(() => {
     if (Object.prototype.hasOwnProperty.call(itemsJson.value, 'numberMatched')) {
@@ -33,7 +34,7 @@ export default function useItems() {
     }
   })
   const showingLimitText = computed(() => {
-    let showText = `Showing ${parseInt(startindex.value) + 1} to ${parseInt(startindex.value) + parseInt(limit.value)} of ${itemsTotal.value} items`
+    let showText = `Showing ${parseInt(startindex.value) + 1} to ${parseInt(startindex.value) + parseInt(limit.value)} of ${itemsTotal.value}`
     return showText
   })
   const startindex = computed(() => {
@@ -43,6 +44,9 @@ export default function useItems() {
       console.log('new startindex', parseInt((currentPage.value - 1) * limit.value))
       return parseInt((currentPage.value - 1) * limit.value)
     }
+  })
+  const maxPages = computed(() => {
+    return parseInt(itemsTotal.value / limit.value)
   })
   const nextPage = function() {
     if ((currentPage.value * limit.value) < itemsTotal.value) {
@@ -58,6 +62,7 @@ export default function useItems() {
   }
   const getItems = async () => {
     try {
+      itemsLoading.value = true
       const newRequestUrl = `?f=json&limit=${limit.value}&startindex=${startindex.value}`  // relative to /items
       if (requestUrl.value === newRequestUrl) {
         return false // prevent duplicate calls
@@ -65,8 +70,10 @@ export default function useItems() {
       requestUrl.value = newRequestUrl
       const resp = await axios.get(requestUrl.value)
       itemsJson.value = resp.data
+      itemsLoading.value = false
     } catch (err) {
       console.error(err)
+      itemsLoading.value = false
     }
   }
   
@@ -77,7 +84,7 @@ export default function useItems() {
 
   return {
     itemsJson, itemsTotal, items, itemProps, limit,
-    getItems, showingLimitText,
-    nextPage, prevPage, currentPage
+    getItems, showingLimitText, itemsLoading,
+    nextPage, prevPage, currentPage, maxPages
   }
 }

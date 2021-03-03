@@ -12,7 +12,6 @@
 {% endblock %}
 {% block extrahead %}
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 {% endblock %}
 
 {% block body %}
@@ -38,7 +37,7 @@
             placeholder="Search"
             v-model="searchText">
         </div>
-        <div id="items-table-container">
+        <div id="items-table-container" :class="{ 'loading-mask': itemsLoading }">
           <table id="items-table" class="table table-striped">
             <thead>
               <tr>
@@ -63,24 +62,37 @@
           </table>
         </div>
 
-        <nav class="form-inline small" aria-live="polite" aria-controls="items-table">
-          <div class="form-group">
-            <label>Limit: </label>
-            <select
-              class="input-sm form-control"
-              v-model="limit"
-              @change="getItems">
-                <option value="10">10</option>
-                <option value="100">100</option>
-                <option value="1000">1000</option>
-                <option value="2000">2000</option>
-            </select>
-            <span>[% showingLimitText %]</span>
+        <nav class="small" aria-live="polite" aria-controls="items-table">
+          <div class="row">
+            <div class="col-xs-4">
+              <div class="form-group">
+                <label>Limit: </label>
+                <select
+                  class="input-sm form-control inline-block"
+                  v-model="limit"
+                  :disabled="itemsLoading"
+                  @change="getItems">
+                    <option value="10">10</option>
+                    <option value="100">100</option>
+                    <option value="1000">1000</option>
+                    <option value="2000">2000</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-xs-8 text-right"><span>[% showingLimitText %]</span></div>
           </div>
-          <div>
-            <button class="btn btn-sm btn-primary" @click="prevPage">Previous</button>
-            <button class="btn btn-sm btn-primary" @click="nextPage">Next</button>
-          </div>
+          <div class="alert alert-warning">
+            <p><small>Warning: Higher limits not recommended</small></p>
+          </div>    
+          <ul class="pagination pagination-sm">
+            <li>
+              <button class="btn btn-sm btn-default" @click="prevPage" rel="prev" :disabled="itemsLoading || currentPage === 1">Previous</button>
+            </li>
+            <span>Page [% currentPage %] / [% maxPages %]</span>
+            <li>
+              <button class="btn btn-sm btn-default" @click="nextPage" :disabled="itemsLoading || currentPage === maxPages" rel="next">Next</button>
+            </li>
+          </ul>
         </nav>
       </div>
     </div>
@@ -95,30 +107,20 @@
 {% block extrafoot %}
 {% if data['features'] %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
-    <script>
-      var map = L.map('items-map').setView([45, -75], 5)
-      map.addLayer(new L.TileLayer(
-          '{{ config['server']['map']['url'] }}', {
-            maxZoom: 18,
-            attribution: '{{ config['server']['map']['attribution'] }}'
-          }
-      ))
-      var GEOJSON_DATA = {type: 'FeatureCollection', features: []}
-      var layerItems = new L.GeoJSON(GEOJSON_DATA)
-      map.addLayer(layerItems)
-    </script>
     <script type="module">
       import useItems from '{{ config['server']['url'] }}/static/js/composables/useItems.js'
       import useTableFilter from '{{ config['server']['url'] }}/static/js/composables/useTableFilter.js'
-      import { createApp, ref, computed, watch } from 'https://cdnjs.cloudflare.com/ajax/libs/vue/3.0.5/vue.esm-browser.js'
-
+      import useMap from '{{ config['server']['url'] }}/static/js/composables/useMap.js'
+      import { createApp, ref, computed, watch, onMounted } from 'https://cdnjs.cloudflare.com/ajax/libs/vue/3.0.5/vue.esm-browser.js'
+      
       const app = createApp({
         delimiters: ['[%', '%]'],
         setup() {
-          const { items, itemsJson, itemProps, getItems, itemsTotal, 
-            prevPage, nextPage, limit, showingLimitText } = useItems()
+          // Items handling
+          const { items, itemsJson, itemProps, getItems, itemsTotal, itemsLoading,
+            currentPage, maxPages, prevPage, nextPage, limit, showingLimitText } = useItems()
           
-          // table columns
+          // Table columns
           const tableFields = computed(() => {
             const fields = []
             if (typeof itemProps === 'undefined') {
@@ -136,31 +138,23 @@
           const keyColumns = computed(() => {
             return tableFields.value.map(field => field.key)
           })
+
+          // Table filtering
           const { searchText, searchTextLowered, truncate,
             currentSort, sortDir, sortIconClass, filteredRows } = useTableFilter(items, keyColumns, 'id', itemsTotal)
-          
-          watch(items, () => {
-            if (map.hasLayer(layerItems)) {
-              map.removeLayer(layerItems)
-            }
-            GEOJSON_DATA = itemsJson.value
-            layerItems = new L.GeoJSON(GEOJSON_DATA, {
-              onEachFeature: function (feature, layer) {
-                let url = '{{ data['items_path'] }}/' + feature.id + '?f=html'
-                let html = '<span><a href="' + url + '">' + feature.id + '</a></span>'
-                layer.bindPopup(html)
-              }
-            })
-            map.addLayer(layerItems)
-            map.fitBounds(layerItems.getBounds())
-          })
+
+          // Map setup
+          const itemsPath = '{{ data['items_path'] }}'
+          const tileLayerUrl = '{{ config['server']['map']['url'] }}'
+          const tileLayerAttr = '{{ config['server']['map']['attribution'] }}'
+          useMap('items-map', itemsJson, itemsPath, tileLayerUrl, tileLayerAttr)
 
           return {
-            tableFields, keyColumns, itemsTotal, getItems,
+            tableFields, keyColumns, itemsTotal, getItems, itemsLoading,
             items: filteredRows, // don't care for unfiltered
             searchText, searchTextLowered, truncate,
             sortIconClass, sortDir, currentSort, 
-            limit, showingLimitText, nextPage, prevPage
+            limit, showingLimitText, nextPage, prevPage, currentPage, maxPages
           }
         }
       })
