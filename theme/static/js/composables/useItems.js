@@ -41,7 +41,6 @@ export default function useItems() {
     if (currentPage.value === 1) {
       return 0
     } else {
-      console.log('new startindex', parseInt((currentPage.value - 1) * limit.value))
       return parseInt((currentPage.value - 1) * limit.value)
     }
   })

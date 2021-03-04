@@ -54,8 +54,7 @@
             </thead>
             <tbody>
               <tr v-for="(item, index) in items">
-                <td v-for="(th, index) in tableFields">
-                  [% item[th.key] %]
+                <td v-for="(th, index) in tableFields" v-html="linkToRow(item, th.key, itemsPath)">
                 </td>
               </tr>
             </tbody>
@@ -141,7 +140,7 @@
 
           // Table filtering
           const { searchText, searchTextLowered, truncate,
-            currentSort, sortDir, sortIconClass, filteredRows } = useTableFilter(items, keyColumns, 'id', itemsTotal)
+            currentSort, sortDir, sortIconClass, filteredRows, linkToRow } = useTableFilter(items, keyColumns, 'id', itemsTotal)
 
           // Map setup
           const itemsPath = '{{ data['items_path'] }}'
@@ -154,7 +153,8 @@
             items: filteredRows, // don't care for unfiltered
             searchText, searchTextLowered, truncate,
             sortIconClass, sortDir, currentSort, 
-            limit, showingLimitText, nextPage, prevPage, currentPage, maxPages
+            limit, showingLimitText, nextPage, prevPage, currentPage, maxPages,
+            itemsPath, linkToRow
           }
         }
       })

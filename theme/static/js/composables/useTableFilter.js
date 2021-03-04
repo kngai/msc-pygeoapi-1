@@ -154,11 +154,18 @@ export default function useTableFilter(rows, keyColumns, defaultSortCol) {
   const truncateStripTags = function(str) {
     return truncate(stripTags(str), 350)
   }
+  const linkToRow = function(row, key, itemPath) {
+    if (key === 'id') {
+      return `<a href="${itemPath + '/' + row[key]}">${row[key]}</a>`
+    } else {
+      return row[key]
+    }
+  }
 
   return {
     filteredRows, searchText, searchTextLowered,
     currentSortDir, currentSort, sortDir, sortIconClass, 
     pageSize, currentPage, paginatedRows, prevPage, nextPage, showingFilterText,
-    truncateStripTags, stripTags, truncate
+    truncateStripTags, stripTags, truncate, linkToRow
   }
 }

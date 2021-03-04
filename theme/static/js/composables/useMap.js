@@ -1,9 +1,9 @@
 import * as L from 'https://unpkg.com/leaflet@1.7.1/dist/leaflet-src.esm.js'
 import { ref, watch, onMounted } from 'https://cdnjs.cloudflare.com/ajax/libs/vue/3.0.5/vue.esm-browser.js'
 
-var map, GEOJSON_DATA, layerItems
-
 export default function useMap(mapElemId, geoJsonData, itemsPath, tileLayerUrl, tileLayerAttr) {
+  let map, layerItems
+
   const setupMap = function() {
     map = L.map(mapElemId).setView([45, -75], 5)
     map.addLayer(new L.TileLayer(
@@ -29,10 +29,7 @@ export default function useMap(mapElemId, geoJsonData, itemsPath, tileLayerUrl, 
       }
     })
     map.addLayer(layerItems)
-    map.fitBounds(layerItems.getBounds())
-    if (map.getZoom() > 5) { // minimum zoom level
-      map.setZoom(5)
-    }
+    map.fitBounds(layerItems.getBounds(), {maxZoom: 5})
   })
 
   return {
