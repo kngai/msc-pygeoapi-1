@@ -44,7 +44,8 @@
                 <th v-for="(th, index) in tableFields"
                   :class="[th.colClass, 'sortable', 'ellipsis']"
                   :title="th.text"
-                  @click="sortDir(th.key)">[% truncate(th.text, 10) %]
+                  @click="sortDir(th.key)">
+                  <span v-text="truncate(th.text, 10)"></span>
                   <span
                     v-show="currentSort === th.key"
                     :class="sortIconClass"
@@ -78,7 +79,7 @@
                 </select>
               </div>
             </div>
-            <div class="col-xs-8 text-right"><span>[% showingLimitText %]</span></div>
+            <div class="col-xs-8 text-right"><span v-text="showingLimitText"></span></div>
           </div>
           <div class="alert alert-warning">
             <p><small>Warning: Higher limits not recommended</small></p>

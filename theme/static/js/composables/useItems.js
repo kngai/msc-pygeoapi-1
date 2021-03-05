@@ -18,7 +18,7 @@ export default function useItems() {
       // map items to only show its properties
       return itemsJson.value.features.map((item) => {
         return {
-          id: item.id,
+          id: item.id, // include default "id"
           ...item.properties
         }
       })

@@ -107,6 +107,6 @@
     var items = new L.GeoJSON(geojson_data);
 
     map.addLayer(items);
-    map.fitBounds(items.getBounds(), {maxZoom: 15});
+    map.fitBounds(items.getBounds(), {maxZoom: 5});
     </script>
 {% endblock %}
